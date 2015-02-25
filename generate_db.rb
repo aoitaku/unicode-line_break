@@ -17,7 +17,7 @@ end
 
 # line break
 File.write(
-  'ucd_line_break.json',
+  'ucd_linebreak.json',
   gen[ucd['LineBreak.txt'].scan(/^([0-9A-F]+)(?:\.\.([0-9A-F]+))?;([A-Z][A-Z0-9])/)]
 )
 
