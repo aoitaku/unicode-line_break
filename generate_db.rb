@@ -11,7 +11,7 @@ ucd = -> path do
 end
 gen = -> items do
   JSON.generate(items.each_with_object({ i: {}, r: {} }) {|(*cp, c), db|
-    db[:r].store((cp.last ? cp.first.to_i(16)..cp.last.to_i(16) : cp.first.to_i(16)), c.to_sym)
+    cp.last ? db[:r].store(cp.first.to_i(16)..cp.last.to_i(16), c.to_sym) : db[:i].store(cp.first.to_i(16), c.to_sym)
   })
 end
 
