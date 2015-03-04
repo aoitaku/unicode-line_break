@@ -3,40 +3,79 @@ require 'json/add/core'
 
 module Unicode
 
-  class CharacterDB
+  class DB
 
     class Table
-      def initialize(hash)
-        @range_table = hash[:r]
-        @index_table = hash[:i]
+
+      def initialize(table)
+        @table = table
       end
+
+    end
+
+    class IndexTable < Table
+
       def find(code)
-        Array(
-          @index_table.find {|_, values| values.include?(code) } ||
-          @range_table.find {|_, values| values.find {|value| value === code }}
-        ).first
+        Array(@table.find {|_, values|
+          values.include?(code)
+        }).first
       end
+
+    end
+
+    class RangeTable < Table
+
+      def find(code)
+        Array(@table.find {|_, values|
+          values.find {|value| value === code }
+        }).first
+      end
+
+    end
+
+    class CharacterDB
+
+      def self.load(file)
+        self.new(load_from_file(file))
+      end
+
+      def self.load_from_file(file)
+        if File.exist?("#{file}.db")
+          load_from_db("#{file}.db")
+        else
+          load_from_json("#{file}.json").tap do |db|
+            File.binwrite("#{file}.db", Marshal.dump(db))
+          end
+        end
+      end
+
+      def self.load_from_db(db)
+        Marshal.load(File.binread(db))
+      end
+
+      def self.load_from_json(json)
+        JSON.load(File.read(json), method(:hash_symbolize_key))
+      end
+
+      def self.hash_symbolize_key(h)
+        h.keys.each {|k| (h[k.to_sym] = h[k]) and h.delete(k)} if Hash === h
+      end
+
+      def initialize(hash)
+        @range_table = RangeTable.new(hash[:r])
+        @index_table = IndexTable.new(hash[:i])
+      end
+
+      def find(code)
+        @index_table.find(code) or @range_table.find(code)
+      end
+
     end
 
     def initialize
-      @east_asian_width = Table.new(load_db('ucd_east_asian_width'))
-      @line_break = Table.new(load_db('ucd_line_break'))
+      @east_asian_width = CharacterDB.load('ucd_east_asian_width')
+      @line_break = CharacterDB.load('ucd_line_break')
     end
-
-    def load_db(db_file)
-      if File.exist?("#{db_file}.db")
-        Marshal.load(File.binread("#{db_file}.db"))
-      else
-        JSON.load(File.read("#{db_file}.json"), method(:hash_symbolize_key)).tap do |db|
-          File.binwrite("#{db_file}.db", Marshal.dump(db))
-        end
-      end
-    end
-
-    def hash_symbolize_key(h)
-      h.keys.each {|k| (h[k.to_sym] = h[k]) and h.delete(k)} if Hash === h
-    end
-    private :hash_symbolize_key
 
     def line_break(code)
       @line_break.find(code)
@@ -45,6 +84,6 @@ module Unicode
   end
 end
 
-db = Unicode::CharacterDB.new
+db = Unicode::DB.new
 p db.line_break('あ'.ord)
 p db.line_break('→'.ord)
