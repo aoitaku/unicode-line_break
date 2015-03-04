@@ -1,6 +1,7 @@
 require 'net/http'
 require 'uri'
 require 'json'
+require 'json/add/core'
 
 module Unicode
   VERSION = '7.0.0'
@@ -12,10 +13,25 @@ def ucd
   -> path { -> pattern { -> {
     response = Net::HTTP.get(URI.parse("#{UCD_DIR}#{path}"))
     break unless response
-    response.scan(pattern).each_with_object({ i: {}, r: {} }) {|(*cp, c), db|
+    response.scan(pattern).each_with_object({}) {|(*cp, c), db|
+      db[c.to_sym] ||= []
       cp.last ?
-      db[:r].store(cp.first.to_i(16)..cp.last.to_i(16), c.to_sym) :
-      db[:i].store(cp.first.to_i(16), c.to_sym)
+      db[c.to_sym].push(*cp.first.to_i(16)..cp.last.to_i(16)) :
+      db[c.to_sym].push(cp.first.to_i(16))
+    }.inject({i:{},r:{}}) {|db, (k, v)|
+      v.slice_before(value:v[0]) {|value, prev|
+        prev[:value], prev_value = value, prev[:value]
+        prev_value + 1 != value
+      }.each {|values|
+        if values.length > 2
+          db[:r][k] ||= []
+          db[:r][k].push(values.first..values.last)
+        else
+          db[:i][k] ||= []
+          db[:i][k].push(*values)
+        end
+      }
+      db
     }
   }}}
 end
@@ -27,7 +43,7 @@ def dump_dbs(dbs)
 end
 
 dump_dbs(
-  ucd_linebreak:
+  ucd_line_break:
     ucd['LineBreak.txt'][/^([0-9A-F]+)(?:\.\.([0-9A-F]+))?;([A-Z][A-Z0-9])/],
   ucd_east_asian_width:
     ucd['EastAsianWidth.txt'][/^([0-9A-F]+)(?:\.\.([0-9A-F]+))?;([AFHNW]|Na)/]
