@@ -5,9 +5,22 @@ module Unicode
 
   class CharacterDB
 
+    class Table
+      def initialize(hash)
+        @range_table = hash[:r]
+        @index_table = hash[:i]
+      end
+      def find(code)
+        Array(
+          @index_table.find {|_, values| values.include?(code) } ||
+          @range_table.find {|_, values| values.find {|value| value === code }}
+        ).first
+      end
+    end
+
     def initialize
-      @east_asian_width = load_db('ucd_east_asian_width')
-      @line_break = load_db('ucd_line_break')
+      @east_asian_width = Table.new(load_db('ucd_east_asian_width'))
+      @line_break = Table.new(load_db('ucd_line_break'))
     end
 
     def load_db(db_file)
@@ -26,12 +39,7 @@ module Unicode
     private :hash_symbolize_key
 
     def line_break(code)
-      Array(@line_break[:i].find {|_, values|
-        values.include?(code)
-      }).first or
-      Array(@line_break[:r].find {|_, values|
-        values.find {|value| value === code }
-      }).first
+      @line_break.find(code)
     end
 
   end
