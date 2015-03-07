@@ -21,17 +21,3 @@ module Unicode
 
   end
 end
-
-eaw = Unicode::EastAsianWidth.new
-p Unicode::EastAsianWidthDB.cid2sym(eaw.east_asian_width('a'))
-p Unicode::EastAsianWidthDB.cid2sym(eaw.east_asian_width('1'))
-p Unicode::EastAsianWidthDB.cid2sym(eaw.east_asian_width('あ'))
-p Unicode::EastAsianWidthDB.cid2sym(eaw.east_asian_width('α'))
-p Unicode::EastAsianWidthDB.cid2sym(eaw.east_asian_width('а'))
-p Unicode::EastAsianWidthDB.cid2sym(eaw.east_asian_width('亜'))
-p Unicode::EastAsianWidthDB.cid2sym(eaw.east_asian_width('→'))
-p Unicode::EastAsianWidthDB.cid2sym(eaw.east_asian_width(']'))
-p Unicode::EastAsianWidthDB.cid2sym(eaw.east_asian_width('('))
-p Unicode::EastAsianWidthDB.cid2sym(eaw.east_asian_width('」'))
-p Unicode::EastAsianWidthDB.cid2sym(eaw.east_asian_width('ｲ'))
-p Unicode::EastAsianWidthDB.cid2sym(eaw.east_asian_width('Ａ'))
