@@ -108,15 +108,15 @@ module Unicode
     end
     private :non_breakable
 
-    def initialize
-      @db = Unicode::DB.new
+    def initialize(db=nil)
+      @db = db || Unicode::DB.new
     end
 
     def line_break(char)
       @db.line_break(char.ord)
     end
 
-    def each_breakable(string)
+    def breakables(string)
       string.each_char.lazy.slice_before({}) {|char, with|
         cid = cid_map(line_break(char))
         unless with[:prev_cid]

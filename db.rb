@@ -3,9 +3,115 @@ require 'json/add/core'
 
 module Unicode
 
-  class DB
+  module CharacterDB
 
-    CLASSES = {
+    class Table
+
+      def initialize(table)
+        @table = table
+      end
+
+    end
+
+    class IndexTable < Table
+
+      def find(code)
+        Array(@table.find {|_, values|
+          values.include?(code)
+        }).first
+      end
+
+    end
+
+    class RangeTable < Table
+
+      def find(code)
+        Array(@table.find {|_, values|
+          values.find {|value| value === code }
+        }).first
+      end
+
+    end
+
+    class Base
+
+      class << self
+
+        def load(file)
+          self.new(load_from_file(file))
+        end
+
+        def symbol_to_classid(symbol)
+          classes[symbol]
+        end
+        alias sym2cid symbol_to_classid
+
+        def classid_to_symbol(classid)
+          classes.key(classid)
+        end
+        alias cid2sym classid_to_symbol
+
+        def load_from_file(file)
+          if File.exist?("#{file}.db")
+            load_from_db("#{file}.db")
+          else
+            load_from_json("#{file}.json").tap do |db|
+              File.binwrite("#{file}.db", Marshal.dump(db))
+            end
+          end
+        end
+        private :load_from_file
+
+        def load_from_db(db)
+          Marshal.load(File.binread(db))
+        end
+        private :load_from_db
+
+        def load_from_json(json)
+          JSON.load(File.read(json), method(:hash_symbolize_key))
+        end
+        private :load_from_json
+
+        def hash_symbolize_key(h)
+          h.keys.each {|k| (h[k.to_sym] = h[k]) and h.delete(k)} if Hash === h
+        end
+        private :hash_symbolize_key
+
+        def classes
+          @classes
+        end
+        private :classes
+
+      end
+
+      def initialize(hash)
+        @range_table = RangeTable.new(hash[:r])
+        @index_table = IndexTable.new(hash[:i])
+      end
+
+      def find(code)
+        sym2cid(@index_table.find(code) || @range_table.find(code) || :XX)
+      end
+
+      def symbol_to_classid(symbol)
+        self.class.symbol_to_classid(symbol)
+      end
+      alias sym2cid symbol_to_classid
+      private :sym2cid, :symbol_to_classid
+
+      def classid_to_symbol(classid)
+        self.class.classid_to_symbol(classid)
+      end
+      alias cid2sym classid_to_symbol
+      private :cid2sym, :classid_to_symbol
+
+    end
+
+  end
+
+  class LineBreakDB < CharacterDB::Base
+
+    @classes = {
       OP: 0,
       CL: 1,
       CP: 2,
@@ -48,98 +154,26 @@ module Unicode
       XX: 39
     }
 
-    class Table
+  end
 
-      def initialize(table)
-        @table = table
-      end
+  class EastAsianWidthDB < CharacterDB::Base
 
-    end
+    @classes = {
+      N:  0,
+      A:  1,
+      H:  2,
+      W:  3,
+      F:  4,
+      Na: 5
+    }
 
-    class IndexTable < Table
+  end
 
-      def find(code)
-        Array(@table.find {|_, values|
-          values.include?(code)
-        }).first
-      end
-
-    end
-
-    class RangeTable < Table
-
-      def find(code)
-        Array(@table.find {|_, values|
-          values.find {|value| value === code }
-        }).first
-      end
-
-    end
-
-    class CharacterDB
-
-      class << self
-
-        def load(file)
-          self.new(load_from_file(file))
-        end
-
-        def load_from_file(file)
-          if File.exist?("#{file}.db")
-            load_from_db("#{file}.db")
-          else
-            load_from_json("#{file}.json").tap do |db|
-              File.binwrite("#{file}.db", Marshal.dump(db))
-            end
-          end
-        end
-        private :load_from_file
-
-        def load_from_db(db)
-          Marshal.load(File.binread(db))
-        end
-        private :load_from_db
-
-        def load_from_json(json)
-          JSON.load(File.read(json), method(:hash_symbolize_key))
-        end
-        private :load_from_json
-
-        def hash_symbolize_key(h)
-          h.keys.each {|k| (h[k.to_sym] = h[k]) and h.delete(k)} if Hash === h
-        end
-        private :hash_symbolize_key
-
-      end
-
-      def initialize(hash)
-        @range_table = RangeTable.new(hash[:r])
-        @index_table = IndexTable.new(hash[:i])
-      end
-
-      def find(code)
-        Unicode::DB.sym2cid(@index_table.find(code) || @range_table.find(code) || :XX)
-      end
-
-    end
-
-    class << self
-
-      def symbol_to_classid(symbol)
-        CLASSES[symbol]
-      end
-      alias sym2cid symbol_to_classid
-  
-      def classid_to_symbol(classid)
-        CLASSES.key(classid)
-      end
-      alias cid2sym classid_to_symbol
-
-    end
+  class DB
 
     def initialize
-      @east_asian_width = CharacterDB.load('ucd_east_asian_width')
-      @line_break = CharacterDB.load('ucd_line_break')
+      @east_asian_width = EastAsianWidthDB.load('ucd_east_asian_width')
+      @line_break = LineBreakDB.load('ucd_line_break')
     end
 
     def line_break(code)

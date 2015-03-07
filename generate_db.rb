@@ -46,5 +46,5 @@ dump_dbs(
   ucd_line_break:
     ucd['LineBreak.txt'][/^([0-9A-F]+)(?:\.\.([0-9A-F]+))?;([A-Z][A-Z0-9])/],
   ucd_east_asian_width:
-    ucd['EastAsianWidth.txt'][/^([0-9A-F]+)(?:\.\.([0-9A-F]+))?;([AFHNW]|Na)/]
+    ucd['EastAsianWidth.txt'][/^([0-9A-F]+)(?:\.\.([0-9A-F]+))?;([AFHW]|Na?)/]
 )
