@@ -6,6 +6,30 @@ A Ruby implementation of the Unicode Line Breaking Algorithm (UAX #14).
 
 See [Unicode Standard Annex #14 - UNICODE LINE BREAKING ALGORITHM](http://unicode.org/reports/tr14/).
 
+## Installation
+
+Add this line to your application's Gemfile:
+
+```ruby
+gem 'unicode-line_break'
+```
+
+And then execute:
+
+    $ bundle
+
+Or install it yourself as:
+
+    $ gem install unicode-line_break
+
+## Contributing
+
+1. Fork it ( https://github.com/[my-github-username]/unicode-line_break/fork )
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Add some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create a new Pull Request
+
 ## Reference
 
 Implementations in other languages.
