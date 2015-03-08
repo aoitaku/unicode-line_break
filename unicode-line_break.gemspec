@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'unicode/line_break/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "unicode-linebreak"
+  spec.name          = "unicode-line_break"
   spec.version       = Unicode::LineBreak::VERSION
   spec.authors       = ["aoitaku"]
   spec.email         = ["aoitaku@gmail.com"]
