@@ -8,9 +8,9 @@ Gem::Specification.new do |spec|
   spec.version       = Unicode::LineBreak::VERSION
   spec.authors       = ["aoitaku"]
   spec.email         = ["aoitaku@gmail.com"]
-  spec.summary       = %q{Write a short summary. Required.}
-  spec.description   = %q{Write a longer description. Optional.}
-  spec.homepage      = ""
+  spec.summary       = %q{Ruby Implementation of Unicode Line Breaking Argorithme.}
+  spec.description   = %q{Ruby Implementation of Unicode Line Breaking Argorithme.}
+  spec.homepage      = "https://github.com/aoitaku/unicode-line_break"
   spec.license       = "zlib/libpng"
 
   spec.files         = `git ls-files -z`.split("\x0")
@@ -20,4 +20,5 @@ Gem::Specification.new do |spec|
 
   spec.add_development_dependency "bundler", "~> 1.7"
   spec.add_development_dependency "rake", "~> 10.0"
+  spec.add_development_dependency "rspec", "~> 3.2"
 end
