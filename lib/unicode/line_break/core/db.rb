@@ -52,11 +52,11 @@ module Unicode
         alias cid2sym classid_to_symbol
 
         def load_from_file(file)
-          if File.exist?("#{file}.db")
-            load_from_db("#{file}.db")
+          if File.exist?("#{__dir__}/#{file}.db")
+            load_from_db("#{__dir__}/#{file}.db")
           else
-            load_from_json("#{file}.json").tap do |db|
-              File.binwrite("#{file}.db", Marshal.dump(db))
+            load_from_json("#{__dir__}/#{file}.json").tap do |db|
+              File.binwrite("#{__dir__}/#{file}.db", Marshal.dump(db))
             end
           end
         end
