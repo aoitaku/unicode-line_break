@@ -117,7 +117,8 @@ module Unicode
     end
 
     def breakables(string)
-      string.each_char.lazy.slice_before({}) {|char, with|
+      with = {}
+      string.each_char.lazy.slice_before { |char|
         cid = cid_map(line_break(char))
         unless with[:prev_cid]
           with[:prev_cid] = with[:last_cid] = cid_map_beginning(cid)
